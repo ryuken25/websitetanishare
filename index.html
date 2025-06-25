@@ -17,7 +17,7 @@
   }
   /* Navbar */
   #navbar {
-    background:#2f6042;
+    background:#3b7a57;
     padding:0.5rem 1rem;
     color:white;
     font-weight:bold;
@@ -275,6 +275,9 @@
     background: #3b7a57;
     color: white;
   }
+  td {
+        cursor: pointer;
+  }
   .status-pending {
     color: #d35400;
     font-weight: bold;
@@ -300,14 +303,15 @@
 </head>
 <body>
 
+
+<header>
+  <h1>TaniShare - Platform Sewa Alat Pertanian</h1>
+</header>
 <nav id="navbar" style="display:none;">
   <button id="nav-home">Home</button>
   <button id="nav-invoice">Invoice</button>
 </nav>
 
-<header>
-  <h1>TaniShare - Platform Sewa Alat Pertanian</h1>
-</header>
 
 <!-- Login -->
 <div id="login-container">
@@ -390,6 +394,16 @@
   </div>
 </div>
 
+<!-- Modal Detail Invoice -->
+<div id="modal-invoice-detail" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:9999;">
+  <div style="background:#fff; padding:1.5rem; border-radius:8px; max-width:400px; width:90%; position:relative;">
+    <span id="modal-invoice-close" style="position:absolute; top:10px; right:15px; cursor:pointer; font-weight:bold; font-size:1.3rem;">&times;</span>
+    <h3>Detail Invoice</h3>
+    <div id="invoice-detail-content"></div>
+    <div id="invoice-detail-action" style="margin-top:1rem; text-align:right;"></div>
+  </div>
+</div>
+
 <script>
   // Mock login data
   const validUser = {
@@ -407,89 +421,71 @@
   const navHome = document.getElementById('nav-home');
   const navInvoice = document.getElementById('nav-invoice');
 
-  loginForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const user = document.getElementById('username').value.trim();
-    const pass = document.getElementById('password').value.trim();
-    if(user === validUser.username && pass === validUser.password){
-      loginError.textContent = '';
-      loginContainer.style.display = 'none';
-      navbar.style.display = 'flex';
-      dashboard.style.display = 'block';
-      userNameSpan.textContent = validUser.name;
-      loadAlatList();
-      showInvoiceSection(false);
-      setActiveNav('home');
-    } else {
-      loginError.textContent = 'Username atau password salah!';
-    }
-  });
+  // Merk dan deskripsi lengkap
+  const merkList = ['AgriPro', 'TaniMaju', 'SawahTech', 'HijauBerkah', 'PadiMax'];
 
-  navHome.addEventListener('click', () => {
-    showInvoiceSection(false);
-    setActiveNav('home');
-  });
-
-  navInvoice.addEventListener('click', () => {
-    showInvoiceSection(true);
-    setActiveNav('invoice');
-  });
-
-  // Data alat pertanian (dengan gambar dari Google dan harga per hari)
   const alatData = [
     {
       id: 1,
       name: 'Traktor',
-      desc: 'Alat berat untuk pengolahan lahan pertanian.',
+      merk: merkList[Math.floor(Math.random()*merkList.length)],
+      desc: 'Traktor kuat untuk membajak dan mengolah lahan pertanian hingga 5 hektar per hari dengan mesin diesel efisien.',
       pricePerDay: 500000,
       img: 'https://www.traknus.co.id/app/sam/assets/images/8b78c4de7478e7450b1bb096a0026caf.png?v=1608117184'
     },
     {
       id: 2,
       name: 'Hand Tractor / Cultivator',
-      desc: 'Mesin pengolah tanah kecil untuk area sempit.',
+      merk: merkList[Math.floor(Math.random()*merkList.length)],
+      desc: 'Mesin pengolah tanah kecil yang efisien untuk area terbatas, cocok untuk kebun dan lahan sempit.',
       pricePerDay: 200000,
       img: 'https://image.chainsawsurabaya.com/s3/productimages/webp/co52191/p1188695/w600-h600/c658c2d0-d117-4b6b-a160-f59b592ddabf.png'
     },
     {
       id: 3,
       name: 'Mesin Pemanen (Combine Harvester)',
-      desc: 'Mesin untuk memanen padi dan tanaman lainnya secara efisien.',
+      merk: merkList[Math.floor(Math.random()*merkList.length)],
+      desc: 'Mesin multifungsi untuk memanen padi dan tanaman lain secara cepat dan efisien, mengurangi tenaga kerja manual.',
       pricePerDay: 750000,
       img: 'https://i0.wp.com/multias.co.id/wp-content/uploads/2020/05/DC60.png'
     },
     {
       id: 4,
       name: 'Mesin Penanam Benih',
-      desc: 'Alat untuk menanam benih secara otomatis dan rapi.',
+      merk: merkList[Math.floor(Math.random()*merkList.length)],
+      desc: 'Alat modern yang memastikan benih tertanam rapi dan seragam untuk pertumbuhan tanaman optimal.',
       pricePerDay: 300000,
       img: 'https://image.osselpowermachine.com/s3/productimages/webp/co259509/p1190828/w600-h600/97e0e6f3-c5b9-4997-a5f8-1ffd42dd6926.jpg'
     },
     {
       id: 5,
       name: 'Sprayer (Mesin Semprot)',
-      desc: 'Mesin untuk penyemprotan pestisida atau pupuk cair.',
+      merk: merkList[Math.floor(Math.random()*merkList.length)],
+      desc: 'Mesin semprot otomatis untuk penyemprotan pestisida dan pupuk cair dengan jangkauan luas.',
       pricePerDay: 150000,
       img: 'https://erp.indoteknik.com/api/image/product.template/image_512/84443'
     },
     {
       id: 6,
       name: 'Mesin Penggiling Padi',
-      desc: 'Mesin untuk menggiling gabah menjadi beras.',
+      merk: merkList[Math.floor(Math.random()*merkList.length)],
+      desc: 'Mesin efisien untuk menggiling gabah menjadi beras dengan hasil maksimal dan kualitas terjaga.',
       pricePerDay: 350000,
       img: 'https://hasjrat-yanmar.co.id/wp-content/uploads/2020/01/YMM20.jpg'
     },
     {
       id: 7,
       name: 'Pompa Air',
-      desc: 'Alat untuk memompa air untuk irigasi lahan pertanian.',
+      merk: merkList[Math.floor(Math.random()*merkList.length)],
+      desc: 'Pompa berkualitas tinggi untuk irigasi lahan pertanian dengan kapasitas besar dan tahan lama.',
       pricePerDay: 120000,
       img: 'https://shimizu.co.id/wp-content/uploads/2018/10/PC-260-BIT-2.png'
     },
     {
       id: 8,
       name: 'Alat Pembajak',
-      desc: 'Alat untuk membajak tanah sebelum penanaman.',
+      merk: merkList[Math.floor(Math.random()*merkList.length)],
+      desc: 'Alat pembajak kuat dan tahan lama, sangat cocok untuk membalikkan tanah dan menyiapkan lahan tanam.',
       pricePerDay: 180000,
       img: 'https://media.monotaro.id/mid01/big/Perkakas%20Tangan%2C%20Pneumatik%20%26%20Listrik/Pertanian/Mesin%20Pertanian/Bahan%20Pembersih%20Alat%20Pertanian/KRISBOW%20Alat%20Bajak%20Sawah%20Bensin%204_5HP/73P104566255-2.jpg'
     }
@@ -505,6 +501,34 @@
     { id: 1, alat: 'Traktor', jangka: '3 hari', totalHarga: 1350000, status: 'Pending' }
   ];
   let invoiceIdCounter = 2;
+
+  // Helper: hitung hari dari jangka waktu
+  function getDaysFromJangka(jangka) {
+    switch(jangka) {
+      case '1 hari': return 1;
+      case '3 hari': return 3;
+      case '1 minggu': return 7;
+      case '1 bulan': return 30;
+      case '1 tahun': return 365;
+      default: return 0;
+    }
+  }
+  // Hitung diskon berdasarkan hari
+  function getDiscountRate(days) {
+    if(days >= 365) return 0.20;
+    if(days >= 30) return 0.20;
+    if(days >= 7) return 0.15;
+    if(days >= 3) return 0.10;
+    return 0;
+  }
+
+  // Fungsi tanggal kembali dari hari ini + jangka
+  function getReturnDate(jangka) {
+    const days = getDaysFromJangka(jangka);
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+  }
 
   function loadAlatList(filter = '') {
     alatListContainer.innerHTML = '';
@@ -522,6 +546,7 @@
         <img src="${alat.img}" alt="${alat.name}" />
         <div class="alat-info">
           <h3>${alat.name}</h3>
+          <p><em>Merk: ${alat.merk}</em></p>
           <p>${alat.desc}</p>
           <p><strong>Harga per hari:</strong> Rp ${alat.pricePerDay.toLocaleString('id-ID')}</p>
         </div>
@@ -544,7 +569,148 @@
     }
   });
 
-  // Modal sewa
+  // Attach sewa event ke tombol
+  function attachSewaEvents(){
+    const sewaButtons = document.querySelectorAll('.btn-sewa');
+    sewaButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedAlatId = parseInt(btn.getAttribute('data-id'));
+        const alat = alatData.find(a => a.id === selectedAlatId);
+        alatTerpilihSpan.textContent = alat.name;
+        jangkaSewaSelect.value = '1 hari';
+        modal.style.display = 'flex';
+        jangkaSewaSelect.dispatchEvent(new Event('change'));
+      });
+    });
+  }
+
+  // Login handler
+  loginForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value.trim();
+    if(user === validUser.username && pass === validUser.password){
+      loginError.textContent = '';
+      loginContainer.style.display = 'none';
+      navbar.style.display = 'flex';
+      dashboard.style.display = 'block';
+      userNameSpan.textContent = validUser.name;
+      loadAlatList();
+      showInvoiceSection(false);
+      setActiveNav('home');
+    } else {
+      loginError.textContent = 'Username atau password salah!';
+    }
+  });
+
+  navHome.addEventListener('click', () => {
+    showInvoiceSection(false);
+    setActiveNav('home');
+  });
+  navInvoice.addEventListener('click', () => {
+    showInvoiceSection(true);
+    setActiveNav('invoice');
+  });
+
+  // Show invoice section or alat list
+  function showInvoiceSection(showInvoice){
+    const invoiceSection = document.getElementById('invoice-section');
+    const alatListSection = document.getElementById('alat-list');
+    const searchSection = document.getElementById('search-box');
+    if(showInvoice){
+      invoiceSection.style.display = 'block';
+      alatListSection.style.display = 'none';
+      searchSection.style.display = 'none';
+    } else {
+      invoiceSection.style.display = 'none';
+      alatListSection.style.display = 'grid';
+      searchSection.style.display = 'block';
+    }
+    renderInvoices();
+  }
+
+  // Render invoice table
+  function renderInvoices() {
+    const tbody = document.getElementById('invoice-table-body');
+    tbody.innerHTML = '';
+    invoices.forEach(inv => {
+      const tr = document.createElement('tr');
+      const statusClass = inv.status === 'Lunas' ? 'status-lunas' : 'status-pending';
+      tr.classList.add('invoice-row');
+      tr.dataset.invoiceId = inv.id;
+      tr.innerHTML = `
+        <td>${inv.id}</td>
+        <td>${inv.alat}</td>
+        <td>${inv.jangka}</td>
+        <td>Rp ${inv.totalHarga.toLocaleString('id-ID')}</td>
+        <td class="${statusClass}">${inv.status}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Add click event for detail invoice
+    document.querySelectorAll('.invoice-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const id = parseInt(row.dataset.invoiceId);
+        showInvoiceDetail(id);
+      });
+    });
+  }
+
+  // Modal invoice detail elements
+  const invoiceDetailModal = document.getElementById('modal-invoice-detail');
+  const invoiceDetailContent = document.getElementById('invoice-detail-content');
+  const invoiceDetailAction = document.getElementById('invoice-detail-action');
+  const invoiceDetailClose = document.getElementById('modal-invoice-close');
+
+  invoiceDetailClose.onclick = () => {
+    invoiceDetailModal.style.display = 'none';
+    invoiceDetailAction.innerHTML = '';
+  };
+
+  // Show invoice detail
+  function showInvoiceDetail(id) {
+    const inv = invoices.find(i => i.id === id);
+    if (!inv) return;
+    const alat = alatData.find(a => a.name === inv.alat);
+    invoiceDetailContent.innerHTML = `
+      <p><strong>ID Invoice:</strong> ${inv.id}</p>
+      <p><strong>Alat:</strong> ${inv.alat}</p>
+      <p><strong>Merk:</strong> ${alat ? alat.merk : '-'}</p>
+      <p><strong>Deskripsi Alat:</strong> ${alat ? alat.desc : '-'}</p>
+      <p><strong>Jangka Waktu:</strong> ${inv.jangka}</p>
+      <p><strong>Total Harga:</strong> Rp ${inv.totalHarga.toLocaleString('id-ID')}</p>
+      <p><strong>Status:</strong> <span class="${inv.status === 'Lunas' ? 'status-lunas' : 'status-pending'}">${inv.status}</span></p>
+      ${
+        inv.status === 'Lunas'
+        ? `<p style="margin-top:10px; font-style: italic;">Mohon kembalikan pada tanggal <strong>${getReturnDate(inv.jangka)}</strong></p>`
+        : ''
+      }
+    `;
+
+    invoiceDetailAction.innerHTML = '';
+    if (inv.status === 'Pending') {
+      const btnRefresh = document.createElement('button');
+      btnRefresh.textContent = 'Refresh Status Lunas';
+      btnRefresh.style.background = '#27ae60';
+      btnRefresh.style.color = 'white';
+      btnRefresh.style.border = 'none';
+      btnRefresh.style.padding = '0.5rem 1rem';
+      btnRefresh.style.borderRadius = '5px';
+      btnRefresh.style.cursor = 'pointer';
+      btnRefresh.onclick = () => {
+        inv.status = 'Lunas';
+        renderInvoices();
+        showInvoiceDetail(inv.id);
+        alert('Status invoice telah diperbarui menjadi Lunas.');
+      };
+      invoiceDetailAction.appendChild(btnRefresh);
+    }
+
+    invoiceDetailModal.style.display = 'flex';
+  }
+
+  // Modal sewa variables
   const modal = document.getElementById('modal-sewa');
   const modalClose = document.getElementById('modal-close');
   const alatTerpilihSpan = document.getElementById('alat-terpilih');
@@ -553,42 +719,6 @@
   const totalHargaSpan = document.getElementById('total-harga');
   const hargaAsliSpan = document.getElementById('harga-asli');
   let selectedAlatId = null;
-
-  function getDaysFromJangka(jangka) {
-    switch(jangka) {
-      case '1 hari': return 1;
-      case '3 hari': return 3;
-      case '1 minggu': return 7;
-      case '1 bulan': return 30;
-      case '1 tahun': return 365;
-      default: return 0;
-    }
-  }
-
-  // Fungsi diskon berdasarkan lama sewa
-  function getDiscountRate(days) {
-    if(days >= 365) return 0.20;   // max 20%
-    if(days >= 30) return 0.20;
-    if(days >= 7) return 0.15;
-    if(days >= 3) return 0.10;
-    return 0;
-  }
-
-  function attachSewaEvents(){
-    const sewaButtons = document.querySelectorAll('.btn-sewa');
-    sewaButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        selectedAlatId = parseInt(btn.getAttribute('data-id'));
-        const alat = alatData.find(a => a.id === selectedAlatId);
-        alatTerpilihSpan.textContent = alat.name;
-        jangkaSewaSelect.value = '1 hari';  // set default ke "1 hari"
-        modal.style.display = 'flex';
-
-        // Trigger event change supaya harga langsung muncul
-        jangkaSewaSelect.dispatchEvent(new Event('change'));
-      });
-    });
-  }
 
   jangkaSewaSelect.addEventListener('change', () => {
     const jangka = jangkaSewaSelect.value;
@@ -628,11 +758,6 @@
     }
   });
 
-  // Modal Pembayaran
-  const modalPembayaran = document.getElementById('modal-pembayaran');
-  const modalPembayaranClose = document.getElementById('modal-pembayaran-close');
-  const closePembayaranBtn = document.getElementById('close-pembayaran-btn');
-
   sewaForm.addEventListener('submit', e => {
     e.preventDefault();
     const jangka = jangkaSewaSelect.value;
@@ -651,20 +776,21 @@
     hargaAsliSpan.style.display = 'none';
     totalHargaSpan.textContent = 'Rp 0';
 
-    // Tambah invoice baru dengan status Lunas (karena bayar)
     invoices.push({
       id: invoiceIdCounter++,
       alat: alat.name,
       jangka: jangka,
       totalHarga: discountedTotal,
-      status: 'Lunas'
+      status: 'Pending'
     });
 
-    // Tampilkan modal pembayaran
     modalPembayaran.style.display = 'flex';
   });
 
-  // Tutup modal pembayaran
+  const modalPembayaran = document.getElementById('modal-pembayaran');
+  const modalPembayaranClose = document.getElementById('modal-pembayaran-close');
+  const closePembayaranBtn = document.getElementById('close-pembayaran-btn');
+
   modalPembayaranClose.addEventListener('click', () => {
     modalPembayaran.style.display = 'none';
   });
@@ -672,53 +798,7 @@
     modalPembayaran.style.display = 'none';
   });
 
-  // Navigasi navbar
-  navHome.addEventListener('click', () => {
-    showInvoiceSection(false);
-    setActiveNav('home');
-  });
-
-  navInvoice.addEventListener('click', () => {
-    showInvoiceSection(true);
-    setActiveNav('invoice');
-  });
-
-  // Fungsi tampilkan invoice section atau daftar alat
-  function showInvoiceSection(showInvoice){
-    const invoiceSection = document.getElementById('invoice-section');
-    const alatListSection = document.getElementById('alat-list');
-    const searchSection = document.getElementById('search-box');
-    if(showInvoice){
-      invoiceSection.style.display = 'block';
-      alatListSection.style.display = 'none';
-      searchSection.style.display = 'none';
-    } else {
-      invoiceSection.style.display = 'none';
-      alatListSection.style.display = 'grid';
-      searchSection.style.display = 'block';
-    }
-    renderInvoices();
-  }
-
-  // Render invoice ke tabel
-  function renderInvoices(){
-    const tbody = document.getElementById('invoice-table-body');
-    tbody.innerHTML = '';
-    invoices.forEach(inv => {
-      const tr = document.createElement('tr');
-      const statusClass = inv.status === 'Lunas' ? 'status-lunas' : 'status-pending';
-      tr.innerHTML = `
-        <td>${inv.id}</td>
-        <td>${inv.alat}</td>
-        <td>${inv.jangka}</td>
-        <td>Rp ${inv.totalHarga.toLocaleString('id-ID')}</td>
-        <td class="${statusClass}">${inv.status}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // Navbar aktif styling
+  // Navbar active class
   function setActiveNav(page){
     if(page === 'home'){
       navHome.classList.add('active');
