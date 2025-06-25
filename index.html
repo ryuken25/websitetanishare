@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TaniShare - Platform Sewa Alat Pertanian</title>
+<style>
+  /* Reset */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; padding: 0;
+    font-family: Arial, sans-serif;
+    background: #f0f4f3;
+    color: #333;
+  }
+  /* Navbar */
+  #navbar {
+    background:#2f6042;
+    padding:0.5rem 1rem;
+    color:white;
+    font-weight:bold;
+    display:flex;
+    gap:1rem;
+  }
+  #navbar button {
+    background:transparent;
+    border:none;
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+    font-size:1rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  #navbar button:hover, #navbar button.active {
+    background: #255037;
+  }
+
+  header {
+    background-color: #3b7a57;
+    color: white;
+    padding: 1rem 2rem;
+    text-align: center;
+  }
+  main {
+    max-width: 900px;
+    margin: 2rem auto;
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  h1, h2 {
+    margin-top: 0;
+  }
+  /* Login */
+  #login-container {
+    max-width: 350px;
+    margin: 5rem auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  label {
+    display: block;
+    margin: 1rem 0 0.3rem;
+    font-weight: bold;
+  }
+  input[type="text"], input[type="password"], select {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  button, input[type="submit"] {
+    margin-top: 1.5rem;
+    padding: 0.75rem;
+    width: 100%;
+    font-size: 1rem;
+    background: #3b7a57;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover, input[type="submit"]:hover {
+    background: #2f6042;
+  }
+  .error {
+    color: red;
+    margin-top: 0.5rem;
+  }
+  /* Dashboard */
+  #dashboard {
+    display: none;
+  }
+  #search-box {
+    margin-bottom: 1.5rem;
+  }
+  #search-box input[type="text"] {
+    width: 70%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  #search-box button {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+  }
+  .alat-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
+    gap: 1rem;
+  }
+  .alat-item {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+  }
+  .alat-item img {
+    width: 100%;
+    height: 140px;
+    object-fit: contain;
+    background-color: #f0f4f3;
+  }
+  .alat-info {
+    padding: 0.75rem 1rem;
+    flex-grow: 1;
+  }
+  .alat-info h3 {
+    margin: 0 0 0.5rem;
+  }
+  .alat-info p {
+    margin: 0 0 1rem;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  .btn-sewa {
+    background: #3b7a57;
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 0 0 6px 6px;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  .btn-sewa:hover {
+    background: #2f6042;
+  }
+  /* Modal Sewa */
+  #modal-sewa {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right:0; bottom:0;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+  }
+  #modal-sewa .modal-content {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    max-width: 400px;
+    width: 90%;
+  }
+  #modal-sewa h3 {
+    margin-top: 0;
+  }
+  #modal-sewa label {
+    margin-top: 1rem;
+  }
+  #modal-sewa select, #modal-sewa input[type="submit"] {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  #modal-sewa input[type="submit"] {
+    background: #3b7a57;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 1.5rem;
+  }
+  #modal-sewa input[type="submit"]:hover {
+    background: #2f6042;
+  }
+  #modal-close {
+    float: right;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  /* Harga coret */
+  .harga-asli {
+    text-decoration: line-through;
+    color: #888;
+    margin-right: 0.5rem;
+  }
+  /* Modal Pembayaran */
+  #modal-pembayaran {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right:0; bottom:0;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+  }
+  #modal-pembayaran .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+  }
+  #modal-pembayaran h3 {
+    margin-top: 0;
+  }
+  #modal-pembayaran-close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  #close-pembayaran-btn {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background: #3b7a57;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #close-pembayaran-btn:hover {
+    background: #2f6042;
+  }
+  /* Invoice section */
+  #invoice-section {
+    margin-top: 2rem;
+  }
+  #invoice-section h3 {
+    margin-bottom: 1rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background: #3b7a57;
+    color: white;
+  }
+  .status-pending {
+    color: #d35400;
+    font-weight: bold;
+  }
+  .status-lunas {
+    color: #27ae60;
+    font-weight: bold;
+  }
+  /* Responsive */
+  @media(max-width: 480px) {
+    #search-box input[type="text"] {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+    #search-box button {
+      width: 100%;
+    }
+    table, th, td {
+      font-size: 0.85rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<nav id="navbar" style="display:none;">
+  <button id="nav-home">Home</button>
+  <button id="nav-invoice">Invoice</button>
+</nav>
+
+<header>
+  <h1>TaniShare - Platform Sewa Alat Pertanian</h1>
+</header>
+
+<!-- Login -->
+<div id="login-container">
+  <h2>Login</h2>
+  <form id="login-form">
+    <label for="username">Username</label>
+    <input type="text" id="username" required />
+    <label for="password">Password</label>
+    <input type="password" id="password" required />
+    <button type="submit">Masuk</button>
+    <div class="error" id="login-error"></div>
+  </form>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+  <main>
+    <h2>Selamat Datang, <span id="user-name"></span>!</h2>
+
+    <section id="search-box">
+      <input type="text" id="search-input" placeholder="Cari alat pertanian..." />
+      <button id="search-btn">Cari</button>
+    </section>
+
+    <section class="alat-list" id="alat-list">
+      <!-- List alat akan muncul di sini -->
+    </section>
+
+    <section id="invoice-section" style="display:none;">
+      <h3>Invoice Anda</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>ID Invoice</th>
+            <th>Alat</th>
+            <th>Jangka Waktu</th>
+            <th>Total Harga (Rp)</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="invoice-table-body">
+          <!-- Invoice rows muncul di sini -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<!-- Modal sewa -->
+<div id="modal-sewa">
+  <div class="modal-content">
+    <span id="modal-close">&times;</span>
+    <h3>Form Sewa Alat</h3>
+    <form id="sewa-form">
+      <p><strong>Alat:</strong> <span id="alat-terpilih"></span></p>
+      <label for="jangka-sewa">Pilih Jangka Waktu Sewa:</label>
+      <select id="jangka-sewa" required>
+        <option value="1 hari" selected>1 Hari</option>
+        <option value="3 hari">3 Hari</option>
+        <option value="1 minggu">1 Minggu</option>
+        <option value="1 bulan">1 Bulan</option>
+        <option value="1 tahun">1 Tahun</option>
+      </select>
+      <p>Total Harga: <span id="harga-total-container"><span class="harga-asli" id="harga-asli">Rp 0</span><strong id="total-harga">Rp 0</strong></span></p>
+      <input type="submit" value="Booking Sekarang" />
+    </form>
+  </div>
+</div>
+
+<!-- Modal Pembayaran -->
+<div id="modal-pembayaran">
+  <div class="modal-content">
+    <span id="modal-pembayaran-close">&times;</span>
+    <h3>Instruksi Pembayaran</h3>
+    <p>Silakan transfer ke rekening berikut:</p>
+    <p style="font-size:1.2rem; font-weight:bold; margin:0;">BCA 5925000555</p>
+    <p>a/n I Made Winayagatar Arya Bhanu</p>
+    <p>Setelah transfer, mohon konfirmasi pembayaran ke kontak kami.</p>
+    <button id="close-pembayaran-btn">Tutup</button>
+  </div>
+</div>
+
+<script>
+  // Mock login data
+  const validUser = {
+    username: 'atar',
+    password: 'atar',
+    name: 'Winayagatar'
+  };
+
+  const loginForm = document.getElementById('login-form');
+  const loginError = document.getElementById('login-error');
+  const loginContainer = document.getElementById('login-container');
+  const dashboard = document.getElementById('dashboard');
+  const userNameSpan = document.getElementById('user-name');
+  const navbar = document.getElementById('navbar');
+  const navHome = document.getElementById('nav-home');
+  const navInvoice = document.getElementById('nav-invoice');
+
+  loginForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value.trim();
+    if(user === validUser.username && pass === validUser.password){
+      loginError.textContent = '';
+      loginContainer.style.display = 'none';
+      navbar.style.display = 'flex';
+      dashboard.style.display = 'block';
+      userNameSpan.textContent = validUser.name;
+      loadAlatList();
+      showInvoiceSection(false);
+      setActiveNav('home');
+    } else {
+      loginError.textContent = 'Username atau password salah!';
+    }
+  });
+
+  navHome.addEventListener('click', () => {
+    showInvoiceSection(false);
+    setActiveNav('home');
+  });
+
+  navInvoice.addEventListener('click', () => {
+    showInvoiceSection(true);
+    setActiveNav('invoice');
+  });
+
+  // Data alat pertanian (dengan gambar dari Google dan harga per hari)
+  const alatData = [
+    {
+      id: 1,
+      name: 'Traktor',
+      desc: 'Alat berat untuk pengolahan lahan pertanian.',
+      pricePerDay: 500000,
+      img: 'https://www.traknus.co.id/app/sam/assets/images/8b78c4de7478e7450b1bb096a0026caf.png?v=1608117184'
+    },
+    {
+      id: 2,
+      name: 'Hand Tractor / Cultivator',
+      desc: 'Mesin pengolah tanah kecil untuk area sempit.',
+      pricePerDay: 200000,
+      img: 'https://image.chainsawsurabaya.com/s3/productimages/webp/co52191/p1188695/w600-h600/c658c2d0-d117-4b6b-a160-f59b592ddabf.png'
+    },
+    {
+      id: 3,
+      name: 'Mesin Pemanen (Combine Harvester)',
+      desc: 'Mesin untuk memanen padi dan tanaman lainnya secara efisien.',
+      pricePerDay: 750000,
+      img: 'https://i0.wp.com/multias.co.id/wp-content/uploads/2020/05/DC60.png'
+    },
+    {
+      id: 4,
+      name: 'Mesin Penanam Benih',
+      desc: 'Alat untuk menanam benih secara otomatis dan rapi.',
+      pricePerDay: 300000,
+      img: 'https://image.osselpowermachine.com/s3/productimages/webp/co259509/p1190828/w600-h600/97e0e6f3-c5b9-4997-a5f8-1ffd42dd6926.jpg'
+    },
+    {
+      id: 5,
+      name: 'Sprayer (Mesin Semprot)',
+      desc: 'Mesin untuk penyemprotan pestisida atau pupuk cair.',
+      pricePerDay: 150000,
+      img: 'https://erp.indoteknik.com/api/image/product.template/image_512/84443'
+    },
+    {
+      id: 6,
+      name: 'Mesin Penggiling Padi',
+      desc: 'Mesin untuk menggiling gabah menjadi beras.',
+      pricePerDay: 350000,
+      img: 'https://hasjrat-yanmar.co.id/wp-content/uploads/2020/01/YMM20.jpg'
+    },
+    {
+      id: 7,
+      name: 'Pompa Air',
+      desc: 'Alat untuk memompa air untuk irigasi lahan pertanian.',
+      pricePerDay: 120000,
+      img: 'https://shimizu.co.id/wp-content/uploads/2018/10/PC-260-BIT-2.png'
+    },
+    {
+      id: 8,
+      name: 'Alat Pembajak',
+      desc: 'Alat untuk membajak tanah sebelum penanaman.',
+      pricePerDay: 180000,
+      img: 'https://media.monotaro.id/mid01/big/Perkakas%20Tangan%2C%20Pneumatik%20%26%20Listrik/Pertanian/Mesin%20Pertanian/Bahan%20Pembersih%20Alat%20Pertanian/KRISBOW%20Alat%20Bajak%20Sawah%20Bensin%204_5HP/73P104566255-2.jpg'
+    }
+  ];
+
+  const alatListContainer = document.getElementById('alat-list');
+  const searchInput = document.getElementById('search-input');
+  const searchBtn = document.getElementById('search-btn');
+
+  // Invoice data array
+  let invoices = [
+    // contoh invoice pending
+    { id: 1, alat: 'Traktor', jangka: '3 hari', totalHarga: 1350000, status: 'Pending' }
+  ];
+  let invoiceIdCounter = 2;
+
+  function loadAlatList(filter = '') {
+    alatListContainer.innerHTML = '';
+    const filteredAlat = alatData.filter(alat => 
+      alat.name.toLowerCase().includes(filter.toLowerCase())
+    );
+    if(filteredAlat.length === 0){
+      alatListContainer.innerHTML = '<p>Tidak ada alat yang cocok ditemukan.</p>';
+      return;
+    }
+    filteredAlat.forEach(alat => {
+      const alatItem = document.createElement('div');
+      alatItem.classList.add('alat-item');
+      alatItem.innerHTML = `
+        <img src="${alat.img}" alt="${alat.name}" />
+        <div class="alat-info">
+          <h3>${alat.name}</h3>
+          <p>${alat.desc}</p>
+          <p><strong>Harga per hari:</strong> Rp ${alat.pricePerDay.toLocaleString('id-ID')}</p>
+        </div>
+        <button class="btn-sewa" data-id="${alat.id}">Sewa Alat</button>
+      `;
+      alatListContainer.appendChild(alatItem);
+    });
+    attachSewaEvents();
+  }
+
+  searchBtn.addEventListener('click', () => {
+    const query = searchInput.value.trim();
+    loadAlatList(query);
+  });
+
+  searchInput.addEventListener('keypress', e => {
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      searchBtn.click();
+    }
+  });
+
+  // Modal sewa
+  const modal = document.getElementById('modal-sewa');
+  const modalClose = document.getElementById('modal-close');
+  const alatTerpilihSpan = document.getElementById('alat-terpilih');
+  const sewaForm = document.getElementById('sewa-form');
+  const jangkaSewaSelect = document.getElementById('jangka-sewa');
+  const totalHargaSpan = document.getElementById('total-harga');
+  const hargaAsliSpan = document.getElementById('harga-asli');
+  let selectedAlatId = null;
+
+  function getDaysFromJangka(jangka) {
+    switch(jangka) {
+      case '1 hari': return 1;
+      case '3 hari': return 3;
+      case '1 minggu': return 7;
+      case '1 bulan': return 30;
+      case '1 tahun': return 365;
+      default: return 0;
+    }
+  }
+
+  // Fungsi diskon berdasarkan lama sewa
+  function getDiscountRate(days) {
+    if(days >= 365) return 0.20;   // max 20%
+    if(days >= 30) return 0.20;
+    if(days >= 7) return 0.15;
+    if(days >= 3) return 0.10;
+    return 0;
+  }
+
+  function attachSewaEvents(){
+    const sewaButtons = document.querySelectorAll('.btn-sewa');
+    sewaButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedAlatId = parseInt(btn.getAttribute('data-id'));
+        const alat = alatData.find(a => a.id === selectedAlatId);
+        alatTerpilihSpan.textContent = alat.name;
+        jangkaSewaSelect.value = '1 hari';  // set default ke "1 hari"
+        modal.style.display = 'flex';
+
+        // Trigger event change supaya harga langsung muncul
+        jangkaSewaSelect.dispatchEvent(new Event('change'));
+      });
+    });
+  }
+
+  jangkaSewaSelect.addEventListener('change', () => {
+    const jangka = jangkaSewaSelect.value;
+    const days = getDaysFromJangka(jangka);
+    const alat = alatData.find(a => a.id === selectedAlatId);
+    if(alat && days > 0){
+      const total = alat.pricePerDay * days;
+      const discountRate = getDiscountRate(days);
+      const discountedTotal = Math.round(total * (1 - discountRate));
+      if(discountRate > 0){
+        hargaAsliSpan.style.display = 'inline';
+        hargaAsliSpan.textContent = 'Rp ' + total.toLocaleString('id-ID');
+        totalHargaSpan.textContent = 'Rp ' + discountedTotal.toLocaleString('id-ID');
+      } else {
+        hargaAsliSpan.style.display = 'none';
+        totalHargaSpan.textContent = 'Rp ' + total.toLocaleString('id-ID');
+      }
+    } else {
+      hargaAsliSpan.style.display = 'none';
+      totalHargaSpan.textContent = 'Rp 0';
+    }
+  });
+
+  modalClose.addEventListener('click', () => {
+    modal.style.display = 'none';
+    sewaForm.reset();
+    hargaAsliSpan.style.display = 'none';
+    totalHargaSpan.textContent = 'Rp 0';
+  });
+
+  window.addEventListener('click', e => {
+    if(e.target === modal){
+      modal.style.display = 'none';
+      sewaForm.reset();
+      hargaAsliSpan.style.display = 'none';
+      totalHargaSpan.textContent = 'Rp 0';
+    }
+  });
+
+  // Modal Pembayaran
+  const modalPembayaran = document.getElementById('modal-pembayaran');
+  const modalPembayaranClose = document.getElementById('modal-pembayaran-close');
+  const closePembayaranBtn = document.getElementById('close-pembayaran-btn');
+
+  sewaForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const jangka = jangkaSewaSelect.value;
+    if(!jangka) {
+      alert('Pilih jangka waktu sewa terlebih dahulu!');
+      return;
+    }
+    const days = getDaysFromJangka(jangka);
+    const alat = alatData.find(a => a.id === selectedAlatId);
+    const total = alat.pricePerDay * days;
+    const discountRate = getDiscountRate(days);
+    const discountedTotal = Math.round(total * (1 - discountRate));
+
+    modal.style.display = 'none';
+    sewaForm.reset();
+    hargaAsliSpan.style.display = 'none';
+    totalHargaSpan.textContent = 'Rp 0';
+
+    // Tambah invoice baru dengan status Lunas (karena bayar)
+    invoices.push({
+      id: invoiceIdCounter++,
+      alat: alat.name,
+      jangka: jangka,
+      totalHarga: discountedTotal,
+      status: 'Lunas'
+    });
+
+    // Tampilkan modal pembayaran
+    modalPembayaran.style.display = 'flex';
+  });
+
+  // Tutup modal pembayaran
+  modalPembayaranClose.addEventListener('click', () => {
+    modalPembayaran.style.display = 'none';
+  });
+  closePembayaranBtn.addEventListener('click', () => {
+    modalPembayaran.style.display = 'none';
+  });
+
+  // Navigasi navbar
+  navHome.addEventListener('click', () => {
+    showInvoiceSection(false);
+    setActiveNav('home');
+  });
+
+  navInvoice.addEventListener('click', () => {
+    showInvoiceSection(true);
+    setActiveNav('invoice');
+  });
+
+  // Fungsi tampilkan invoice section atau daftar alat
+  function showInvoiceSection(showInvoice){
+    const invoiceSection = document.getElementById('invoice-section');
+    const alatListSection = document.getElementById('alat-list');
+    const searchSection = document.getElementById('search-box');
+    if(showInvoice){
+      invoiceSection.style.display = 'block';
+      alatListSection.style.display = 'none';
+      searchSection.style.display = 'none';
+    } else {
+      invoiceSection.style.display = 'none';
+      alatListSection.style.display = 'grid';
+      searchSection.style.display = 'block';
+    }
+    renderInvoices();
+  }
+
+  // Render invoice ke tabel
+  function renderInvoices(){
+    const tbody = document.getElementById('invoice-table-body');
+    tbody.innerHTML = '';
+    invoices.forEach(inv => {
+      const tr = document.createElement('tr');
+      const statusClass = inv.status === 'Lunas' ? 'status-lunas' : 'status-pending';
+      tr.innerHTML = `
+        <td>${inv.id}</td>
+        <td>${inv.alat}</td>
+        <td>${inv.jangka}</td>
+        <td>Rp ${inv.totalHarga.toLocaleString('id-ID')}</td>
+        <td class="${statusClass}">${inv.status}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Navbar aktif styling
+  function setActiveNav(page){
+    if(page === 'home'){
+      navHome.classList.add('active');
+      navInvoice.classList.remove('active');
+    } else {
+      navInvoice.classList.add('active');
+      navHome.classList.remove('active');
+    }
+  }
+</script>
+
+</body>
+</html>
